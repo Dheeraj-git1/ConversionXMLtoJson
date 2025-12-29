@@ -19,24 +19,39 @@ public class JsonToXmlConverter {
     public static void main(String[] args) throws Exception {
 
         // Input JSON
-        String inputFile = "convert.json";
+        String inputFile = "inputFiles/json_Input.json";
 
         // Output (always to Downloads, like your XML→JSON converter)
         String inputName = new File(inputFile).getName();
-        String baseName = inputName.contains(".")
-                ? inputName.substring(0, inputName.lastIndexOf('.'))
+        String baseName = inputName.contains("_")
+                ? inputName.substring(0, inputName.lastIndexOf('_'))
                 : inputName;
-        String outputFileName = baseName + ".xml";
+        String outputFileName = baseName + "_Output" + ".xml";
 
-        String userHome = System.getProperty("user.home");
-        String outputFile = userHome + File.separator + "Downloads" +
-                File.separator + outputFileName;
+        String userDir = System.getProperty("user.dir");
+        File outputDir = new File(userDir, "outputFiles");
+
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+
+        String nameWithoutExt = outputFileName.substring(0, outputFileName.lastIndexOf('.'));
+        String extension = outputFileName.substring(outputFileName.lastIndexOf('.'));
+
+        File outputFile = new File(outputDir, outputFileName);
+        int count = 1;
+
+        while (outputFile.exists()) {
+            outputFile = new File(outputDir,
+                    nameWithoutExt + "_" + count + extension);
+            count++;
+        }
 
         // Read JSON into Map
         Gson gson = new Gson();
-        Map<String, Object> jsonMap =
-                gson.fromJson(new FileReader(inputFile),
-                        new TypeToken<Map<String, Object>>() {}.getType());
+        Map<String, Object> jsonMap = gson.fromJson(new FileReader(inputFile),
+                new TypeToken<Map<String, Object>>() {
+                }.getType());
 
         // Convert JSON → XML Document
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -61,7 +76,7 @@ public class JsonToXmlConverter {
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
-        transformer.transform(new DOMSource(doc), new StreamResult(new File(outputFile)));
+        transformer.transform(new DOMSource(doc), new StreamResult(outputFile));
 
         System.out.println("✅ XML written to: " + outputFile);
     }

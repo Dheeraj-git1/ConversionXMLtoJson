@@ -9,19 +9,33 @@ public class XmlToJsonConverter {
 
     public static void main(String[] args) throws Exception {
         // Input XML
-        String inputFile = "convert.xml";
+        String inputFile = "inputFiles/xml_Input.xml";
 
         // Derive output file name from input
         String inputName = new File(inputFile).getName();
-        String baseName = inputName.contains(".")
-                ? inputName.substring(0, inputName.lastIndexOf('.'))
+        String baseName = inputName.contains("_")
+                ? inputName.substring(0, inputName.lastIndexOf('_'))
                 : inputName;
-        String outputFileName = baseName + ".json";
+        String outputFileName = baseName + "_Output" +".json";
 
-        // Always write output to Downloads folder
-        String userHome = System.getProperty("user.home");
-        String outputFile = userHome + File.separator + "Downloads" +
-                File.separator + outputFileName;
+        String userDir = System.getProperty("user.dir");
+        File outputDir = new File(userDir, "outputFiles");
+
+        if (!outputDir.exists()) {
+            outputDir.mkdirs();
+        }
+
+        String nameWithoutExt = outputFileName.substring(0, outputFileName.lastIndexOf('.'));
+        String extension = outputFileName.substring(outputFileName.lastIndexOf('.'));
+
+        File outputFile = new File(outputDir, outputFileName);
+        int count = 1;
+
+        while (outputFile.exists()) {
+            outputFile = new File(outputDir,
+                    nameWithoutExt + "_" + count + extension);
+            count++;
+        }
         // Parse XML
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(false); // ignore namespaces
