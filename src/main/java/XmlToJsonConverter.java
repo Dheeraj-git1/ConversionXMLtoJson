@@ -53,7 +53,7 @@ public class XmlToJsonConverter {
             writer.write(jsonString);
         }
 
-        System.out.println("✅ JSON written to: " + outputFile);
+        System.out.println("✅ JSON Response written to: " + outputFile);
     }
 
     // Convert Element → Map
